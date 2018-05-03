@@ -71,12 +71,14 @@ public class MainPresenter implements Callback<MoviesResponse>{
 
         NetworkService networkInterface = retrofit.create(NetworkService.class);
 
-        if(fetchData() == 0 || fetchData() == n){
+        if(fetchData() == 0 ||  n % fetchData() == 0){
             Call<MoviesResponse> resultDTOCall = networkInterface.getMovies(Constant.KEY, ++count);
             resultDTOCall.enqueue(this);
         }
-
-
+        else{
+            RealmResults<MovieDTO> results = realm.where(MovieDTO.class).findAll();
+            updateUI(results);
+        }
 
     }
 
@@ -84,7 +86,6 @@ public class MainPresenter implements Callback<MoviesResponse>{
     public int fetchData(){
         RealmResults<MovieDTO> results = realm.where(MovieDTO.class).findAll();
         if(results.size() > 0){
-            updateUI(results);
             return results.size();
         }
         else
@@ -107,7 +108,6 @@ public class MainPresenter implements Callback<MoviesResponse>{
 
     @Override
     public void onFailure(Call<MoviesResponse> call, Throwable t) {
-
     }
 
     public void updateUI(List<MovieDTO> moviesResponse){
